@@ -6,8 +6,15 @@
 </head>
 <body>
 <h1>Список читателей</h1>
-
-</hr>
+<ul th:each="person : ${people}">
+    <li>
+        <a th:href="@{/people/{id}(id=${person.getId()})}"
+           th:text="${person.getFio() + ', ' + person.getBirthYear()}">
+            fio, birth year
+        </a>
+    </li>
+</ul>
+<hr />
 <a href="/library">На главную </a>
 </body>
 </html>

@@ -7,16 +7,16 @@ public class Person {
 
     private int id;
 
-    private String FIO;
+    private String fio;
 
     private int birthYear;
 
     public Person() {
     }
 
-    public Person(int id, String FIO, int birthYear) {
+    public Person(int id, String fio, int birthYear) {
         this.id = id;
-        this.FIO = FIO;
+        this.fio = fio;
         this.birthYear = birthYear;
     }
 
@@ -28,12 +28,12 @@ public class Person {
         this.id = id;
     }
 
-    public String getFIO() {
-        return FIO;
+    public String getFio() {
+        return fio;
     }
 
-    public void setFIO(String FIO) {
-        this.FIO = FIO;
+    public void setFio(String fio) {
+        this.fio = fio;
     }
 
     public int getBirthYear() {
