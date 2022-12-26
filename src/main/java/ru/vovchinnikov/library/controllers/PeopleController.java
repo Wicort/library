@@ -5,10 +5,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.vovchinnikov.library.dao.BooksDAO;
 import ru.vovchinnikov.library.dao.PersonDAO;
+import ru.vovchinnikov.library.models.Book;
 import ru.vovchinnikov.library.models.Person;
+import ru.vovchinnikov.library.util.PersonValidator;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -16,10 +20,14 @@ import java.util.Optional;
 public class PeopleController {
 
     private final PersonDAO personDAO;
+    private final BooksDAO booksDAO;
+    private final PersonValidator personValidator;
 
     @Autowired
-    public PeopleController(PersonDAO personDAO) {
+    public PeopleController(PersonDAO personDAO, BooksDAO booksDAO, PersonValidator personValidator) {
         this.personDAO = personDAO;
+        this.booksDAO = booksDAO;
+        this.personValidator = personValidator;
     }
 
     @GetMapping()
@@ -36,7 +44,12 @@ public class PeopleController {
         Optional<Person> person = personDAO.getPerson(id);
         if (person.isPresent()) {
             model.addAttribute("person", person.get());
+
+            List<Book> books = booksDAO.getBooksByPerson(person.get().getId());
+            model.addAttribute("booksCount", books.size());
+            model.addAttribute("books", books);
         }
+
 
         return "people/show";
     }
@@ -54,6 +67,8 @@ public class PeopleController {
         System.out.println(String.format("create new person fio=%s, bYear=%d",
                 person.getFio(),
                 person.getBirthYear()));
+
+        personValidator.validate(person, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "people/new";
@@ -91,6 +106,8 @@ public class PeopleController {
                 person.getId(),
                 person.getFio(),
                 person.getBirthYear()));
+
+        personValidator.validate(person, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "people/edit";

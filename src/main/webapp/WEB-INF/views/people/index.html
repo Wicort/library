@@ -5,18 +5,20 @@
     <title>Читатели</title>
 </head>
 <body>
-<h1>Список читателей</h1>
-<ul th:each="person : ${people}">
-    <li>
-        <a th:href="@{/people/{id}(id=${person.getId()})}"
-           th:text="${person.getFio() + ', ' + person.getBirthYear()}">
-            fio, birth year
-        </a>
-    </li>
-</ul>
-<hr />
-<a href="/people/new">Новый читатель</a>
-<hr />
-<a href="/library">&lt;&lt; На главную </a>
+    <h1>Список читателей</h1>
+    <form method="get" action="/people/new">
+        <input type="submit" value="Новый читатель">
+    </form>
+    <hr />
+    <ul>
+        <li th:each="person : ${people}">
+            <a th:href="@{/people/{id}(id=${person.getId()})}"
+               th:text="${person.getFio() + ', ' + person.getBirthYear()}">
+                fio, birth year
+            </a>
+        </li>
+    </ul>
+    <hr />
+    <a href="/library">&lt;&lt; На главную </a>
 </body>
 </html>

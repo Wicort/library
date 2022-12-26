@@ -7,7 +7,7 @@ public class Person {
     private int id;
 
     @NotEmpty(message="Не заполнено ФИО читателя")
-    @Size(min = 2, message = "Указано слишком короткое ФИО")
+    @Size(min = 5, message = "Указано слишком короткое ФИО")
     private String fio;
 
     @Min(value = 1900, message = "Дата рождения не может быть меньше 1900 года")
