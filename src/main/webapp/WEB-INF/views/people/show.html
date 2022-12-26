@@ -6,13 +6,13 @@
 </head>
 <body>
     <p th:text="${'(id: '+person.getId()+') ' + person.getFio() + ', ' + person.getBirthYear()}">name</p>
-    <div th:if="${books}">
+    <div th:if="${!books.isEmpty()}">
         <h2>Книги:</h2>
         <ul>
             <li th:each="book : ${books}" th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}"></li>
         </ul>
     </div>
-    <div th:unless="${books}">
+    <div th:if="${books.isEmpty()}">
         Читатель пока не взял ни одной книги
     </div>
     <hr />
