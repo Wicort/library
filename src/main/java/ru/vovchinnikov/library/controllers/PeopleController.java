@@ -72,7 +72,7 @@ public class PeopleController {
 
     @GetMapping("/{id}/edit")
     public String openEditForm(Model model,
-            @PathVariable("id") int id) {
+                               @PathVariable("id") int id) {
         System.out.println(String.format("open edit person form, id=%d", id));
         Optional<Person> person = personDAO.getPerson(id);
         if (person.isPresent()) {
@@ -83,9 +83,9 @@ public class PeopleController {
         return "people/edit";
     }
 
-    @PatchMapping("/{id}")
-    public String updatePerson(@ModelAttribute("person") @Valid Person person,
-                               @PathVariable("id") int id,
+    @PutMapping("/{id}")
+    public String updatePerson(@PathVariable("id") int id,
+                               @ModelAttribute("person") @Valid Person person,
                                BindingResult bindingResult){
         System.out.println(String.format("update person id=%d: %s, %d",
                 person.getId(),
@@ -99,4 +99,5 @@ public class PeopleController {
         personDAO.updatePerson(id, person);
         return String.format("redirect:/people/%d", id);
     }
+
 }

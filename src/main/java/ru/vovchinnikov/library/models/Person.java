@@ -8,7 +8,6 @@ public class Person {
 
     @NotEmpty(message="Не заполнено ФИО читателя")
     @Size(min = 2, message = "Указано слишком короткое ФИО")
-    @Pattern(regexp = "[А-ЯA-Z][а-яa-z]+ [А-ЯA-Z][а-яa-z]+", message="Должны быть указаны как минимум Фамилия и Имя")
     private String fio;
 
     @Min(value = 1900, message = "Дата рождения не может быть меньше 1900 года")
