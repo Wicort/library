@@ -71,7 +71,7 @@ public class BooksController {
     public String showBook(@PathVariable("id") int id,
                            Model model,
                            @ModelAttribute("person") Person person){
-        System.out.println(String.format("get book info id=%d", id));
+        System.out.printf("get book info id=%d%n", id);
         try {
             Book book = booksService.findOne(id);
 
@@ -80,7 +80,7 @@ public class BooksController {
             if (book.getOwner() != null) {
                 Person pers = peopleService.findOne(book.getOwner().getId());
 
-                System.out.println(String.format("book is attached to %s", pers.getFio()));
+                System.out.printf("book is attached to %s%n", pers.getFio());
                 model.addAttribute("personName", pers.getFio());
             } else {
                 model.addAttribute("people", peopleService.findAll());
@@ -96,7 +96,7 @@ public class BooksController {
 
     @PutMapping("/{id}/detach")
     public String detach(@PathVariable("id") int id){
-        System.out.println(String.format("detach book %d", id));
+        System.out.printf("detach book %d%n", id);
         try {
             Book book = booksService.findOne(id);
 
@@ -113,7 +113,7 @@ public class BooksController {
     @PutMapping("/{id}/attach")
     public String attach(@PathVariable("id") int id,
                          @ModelAttribute("person") Person person){
-        System.out.println(String.format("attach book %d to %d", id, person.getId()));
+        System.out.printf("attach book %d to %d%n", id, person.getId());
         Person pers = peopleService.findOne(person.getId());
 
         try {
@@ -137,10 +137,10 @@ public class BooksController {
     @PostMapping()
     public String createBook(@ModelAttribute("book") @Valid Book book,
                              BindingResult bindingResult){
-        System.out.println(String.format("creating new book: %s, %s, %d",
+        System.out.printf("creating new book: %s, %s, %d%n",
                 book.getName(),
                 book.getAuthor(),
-                book.getYear()));
+                book.getYear());
 
         bookValidator.validate(book, bindingResult);
 
@@ -187,10 +187,10 @@ public class BooksController {
     public String updateBook(@PathVariable("id") int id,
                              @ModelAttribute("book") @Valid Book book,
                              BindingResult bindingResult){
-        System.out.println(String.format("updating book: %s, %s, %d",
+        System.out.printf("updating book: %s, %s, %d%n",
                 book.getName(),
                 book.getAuthor(),
-                book.getYear()));
+                book.getYear());
         bookValidator.validate(book, bindingResult);
 
         if (bindingResult.hasErrors()){
@@ -198,8 +198,7 @@ public class BooksController {
         }
         try {
             Book findedBook = booksService.findOne(id);
-
-            booksService.update(id, book);
+            booksService.update(findedBook.getId(), book);
         } catch (BookNotFoundException e) {
             e.printStackTrace();
             return "books/404";
