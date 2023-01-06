@@ -9,7 +9,9 @@
     <div th:if="${!books.isEmpty()}">
         <h2>Книги:</h2>
         <ul>
-            <li th:each="book : ${books}" th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}"></li>
+            <li th:each="book : ${books}" >
+                <div th:style="${book.isExpired()} ? 'color:red' : 'color:black'" th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}"></div>
+            </li>
         </ul>
     </div>
     <div th:if="${books.isEmpty()}">

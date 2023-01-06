@@ -11,6 +11,7 @@ import ru.vovchinnikov.library.models.Person;
 import ru.vovchinnikov.library.repositories.BooksRepository;
 import ru.vovchinnikov.library.repositories.PeopleRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,11 @@ public class BooksService {
         Book book = findOne(id);
         if (book != null) {
             book.setOwner(person);
+            if (person == null) {
+                book.setDateOfTaken(null);
+            } else {
+                book.setDateOfTaken(new Date());
+            }
             booksRepository.save(book);
         } else {
             throw new BookNotFoundException(id);
@@ -87,6 +93,11 @@ public class BooksService {
 
     public Book findOne(String name, String author){
         return booksRepository.findBookByNameAndAuthor(name, author);
+    }
+
+    public boolean isExpired(int id) throws BookNotFoundException {
+        Book book = findOne(id);
+        return book.isExpired();
     }
 
 }

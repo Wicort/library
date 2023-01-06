@@ -7,7 +7,7 @@
 <body>
   <p th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}">text</p>
   <div th:if="${book.getOwner()}" >
-    <div th:text="${'Книга сейчас у: ' + personName}"></div>
+    <div th:style="${book.isExpired()} ? 'color:red' : 'color:black'" th:text="${'Книга сейчас у: ' + personName}"></div>
     <form th:method="put" th:action="@{/books/{id}/detach(id=${book.getId()})}">
       <input type="submit" value="Открепить">
     </form>

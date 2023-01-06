@@ -2,6 +2,8 @@ package ru.vovchinnikov.library.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Entity
 @Table(name="book")
@@ -26,6 +28,10 @@ public class Book {
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private Person owner;
+
+    @Column(name="dateoftaken")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateOfTaken;
 
     public Book() {
     }
@@ -75,4 +81,20 @@ public class Book {
     public void setOwner(Person person) {
         this.owner = person;
     }
+
+    public Date getDateOfTaken() {
+        return dateOfTaken;
+    }
+
+    public void setDateOfTaken(Date dateOfTaken) {
+        this.dateOfTaken = dateOfTaken;
+    }
+
+    public boolean isExpired() {
+        Date sysdate = new Date();
+        long delta = TimeUnit.DAYS.convert(Math.abs(sysdate.getTime() - this.dateOfTaken.getTime()), TimeUnit.MILLISECONDS);
+        System.out.printf("delta is %d%n", delta);
+        return delta >= 10;
+    }
+
 }

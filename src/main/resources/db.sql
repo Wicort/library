@@ -30,4 +30,6 @@ insert into book (name, author, year, person_id) values ('Психопатоло
 insert into book (name, author, year, person_id) values ('Игра в бисер', 'Герман Гессе', 1943, null);
 insert into book (name, author, year, person_id) values ('Бытие и время', 'Мартин Хайдеггер', 1927, null);
 
+ALTER TABLE public.book ADD dateoftaken timestamp NULL;
+
 select * from book b 
