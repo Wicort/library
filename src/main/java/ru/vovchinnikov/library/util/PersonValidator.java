@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.vovchinnikov.library.dao.PersonDAO;
 import ru.vovchinnikov.library.models.Person;
 import ru.vovchinnikov.library.services.PeopleService;
 
@@ -25,8 +24,9 @@ public class PersonValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         Person person = (Person) o;
+        Person existedPerson = peopleService.findOne(person.getFio());
 
-        if (peopleService.findOne(person.getFio()) != null){
+        if (existedPerson != null && person.getId() != existedPerson.getId()){
             errors.rejectValue("fio","","Читатель с таким именем уже заергистрирован");
         }
     }

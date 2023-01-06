@@ -5,8 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.vovchinnikov.library.dao.BooksDAO;
-import ru.vovchinnikov.library.dao.PersonDAO;
 import ru.vovchinnikov.library.models.Book;
 import ru.vovchinnikov.library.models.Person;
 import ru.vovchinnikov.library.services.BooksService;
@@ -15,7 +13,6 @@ import ru.vovchinnikov.library.util.PersonValidator;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/people")

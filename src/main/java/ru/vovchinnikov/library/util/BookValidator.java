@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.vovchinnikov.library.dao.BooksDAO;
 import ru.vovchinnikov.library.models.Book;
 import ru.vovchinnikov.library.services.BooksService;
 
