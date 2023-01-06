@@ -6,14 +6,15 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.vovchinnikov.library.dao.BooksDAO;
 import ru.vovchinnikov.library.models.Book;
+import ru.vovchinnikov.library.services.BooksService;
 
 @Component
 public class BookValidator implements Validator {
-    private final BooksDAO booksDAO;
+    private final BooksService booksService;
 
     @Autowired
-    public BookValidator(BooksDAO booksDAO) {
-        this.booksDAO = booksDAO;
+    public BookValidator(BooksService booksService) {
+        this.booksService = booksService;
     }
 
 
@@ -25,7 +26,7 @@ public class BookValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         Book book = (Book) o;
-        if (booksDAO.getBook(book.getName(), book.getAuthor()).isPresent()) {
+        if (booksService.findOne(book.getName(), book.getAuthor()) != null) {
             errors.rejectValue("name", "", "Книга этого автора с таким названием уже зарегистрирована");
         }
     }

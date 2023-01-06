@@ -9,6 +9,8 @@ import ru.vovchinnikov.library.dao.BooksDAO;
 import ru.vovchinnikov.library.dao.PersonDAO;
 import ru.vovchinnikov.library.models.Book;
 import ru.vovchinnikov.library.models.Person;
+import ru.vovchinnikov.library.services.BooksService;
+import ru.vovchinnikov.library.services.PeopleService;
 import ru.vovchinnikov.library.util.PersonValidator;
 
 import javax.validation.Valid;
@@ -19,21 +21,21 @@ import java.util.Optional;
 @RequestMapping("/people")
 public class PeopleController {
 
-    private final PersonDAO personDAO;
-    private final BooksDAO booksDAO;
+    private final PeopleService peopleService;
+    private final BooksService booksService;
     private final PersonValidator personValidator;
 
     @Autowired
-    public PeopleController(PersonDAO personDAO, BooksDAO booksDAO, PersonValidator personValidator) {
-        this.personDAO = personDAO;
-        this.booksDAO = booksDAO;
+    public PeopleController(PeopleService peopleService, BooksService booksService, PersonValidator personValidator) {
+        this.peopleService = peopleService;
+        this.booksService = booksService;
         this.personValidator = personValidator;
     }
 
     @GetMapping()
     public String index(Model model){
         System.out.println("get list of people");
-        model.addAttribute("people", personDAO.getAll());
+        model.addAttribute("people", peopleService.findAll());
         return "people/index";
     }
 
@@ -41,14 +43,13 @@ public class PeopleController {
     public String showPerson(Model model,
             @PathVariable("id") int id) {
         System.out.println(String.format("get person id=%d", id));
-        Optional<Person> person = personDAO.getPerson(id);
-        if (person.isPresent()) {
-            model.addAttribute("person", person.get());
+        Person person = peopleService.findOne(id);
 
-            List<Book> books = booksDAO.getBooksByPerson(person.get().getId());
-            model.addAttribute("booksCount", books.size());
-            model.addAttribute("books", books);
-        }
+        model.addAttribute("person", person);
+
+        List<Book> books = booksService.findByPerson(person);
+        model.addAttribute("booksCount", books.size());
+        model.addAttribute("books", books);
 
 
         return "people/show";
@@ -74,14 +75,14 @@ public class PeopleController {
             return "people/new";
         }
 
-        personDAO.addPerson(person);
+        peopleService.save(person);
         return "redirect:/people";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") int id) {
         System.out.println(String.format("delete person id=%d", id));
-        personDAO.deletePerson(id);
+        peopleService.delete(id);
         return "redirect:/people";
     }
 
@@ -89,11 +90,9 @@ public class PeopleController {
     public String openEditForm(Model model,
                                @PathVariable("id") int id) {
         System.out.println(String.format("open edit person form, id=%d", id));
-        Optional<Person> person = personDAO.getPerson(id);
-        if (person.isPresent()) {
-            System.out.println("person is present");
-            model.addAttribute("person", person.get());
-        }
+        Person person = peopleService.findOne(id);
+
+        model.addAttribute("person", person);
 
         return "people/edit";
     }
@@ -113,7 +112,7 @@ public class PeopleController {
             return "people/edit";
         }
 
-        personDAO.updatePerson(id, person);
+        peopleService.update(id, person);
         return String.format("redirect:/people/%d", id);
     }
 

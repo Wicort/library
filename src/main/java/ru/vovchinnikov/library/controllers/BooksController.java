@@ -5,37 +5,66 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.vovchinnikov.library.dao.BooksDAO;
-import ru.vovchinnikov.library.dao.PersonDAO;
+import ru.vovchinnikov.library.exceptions.BookNotFoundException;
 import ru.vovchinnikov.library.models.Book;
 import ru.vovchinnikov.library.models.Person;
+import ru.vovchinnikov.library.services.BooksService;
+import ru.vovchinnikov.library.services.PeopleService;
 import ru.vovchinnikov.library.util.BookValidator;
 
 import javax.validation.Valid;
-import java.util.Optional;
+import java.util.List;
 
 @Controller
 @RequestMapping("/books")
 public class BooksController {
 
-    BooksDAO booksDAO;
-    PersonDAO personDAO;
-    BookValidator bookValidator;
+    private final BooksService booksService;
+    private final PeopleService peopleService;
+    private final BookValidator bookValidator;
 
     @Autowired
-    public BooksController(BooksDAO booksDAO, PersonDAO personDAO, BookValidator bookValidator) {
-        this.booksDAO = booksDAO;
-        this.personDAO = personDAO;
+    public BooksController(BooksService booksService, PeopleService peopleService, BookValidator bookValidator) {
+        this.booksService = booksService;
+        this.peopleService = peopleService;
         this.bookValidator = bookValidator;
     }
 
 
     @GetMapping()
-    public String index(Model model) {
-        System.out.println("get all books");
-        model.addAttribute("books", booksDAO.getAll());
+    public String index(Model model,
+                        @RequestParam(value = "page", required = false) Integer page,
+                        @RequestParam(value = "books_per_page", required = false) Integer booksPerPage,
+                        @RequestParam(value = "sort_by_year", required = false) boolean sortByYear) {
+        if ((page == null) || (booksPerPage == null)) {
+            System.out.println("get all books");
+            if (sortByYear){
+                model.addAttribute("books", booksService.findAllWithSortByYear());
+            } else {
+                model.addAttribute("books", booksService.findAll());
+            }
+        } else {
+            if (sortByYear){
+                model.addAttribute("books", booksService.findAllWithSortByYear(page, booksPerPage));
+            } else {
+                model.addAttribute("books", booksService.findAllWithPagination(page, booksPerPage));
+            }
+        }
+
 
         return "books/index";
+    }
+
+    @GetMapping("/search")
+    public String search(Model model,
+                         @RequestParam(value = "content", required = false) String content){
+        System.out.println(content);
+        if (content != null && !content.isEmpty()) {
+            model.addAttribute("content", content);
+            List<Book> books = booksService.findByContent(content);
+            model.addAttribute("books", books);
+        }
+        return "books/search";
     }
 
     @GetMapping("/{id}")
@@ -43,17 +72,23 @@ public class BooksController {
                            Model model,
                            @ModelAttribute("person") Person person){
         System.out.println(String.format("get book info id=%d", id));
-        Optional<Book> book = booksDAO.getBook(id);
+        try {
+            Book book = booksService.findOne(id);
 
-        if (book.isPresent()){
-            model.addAttribute("book", book.get());
-            model.addAttribute("people", personDAO.getAll());
+            model.addAttribute("book", book);
 
-            Optional<Person> pers = personDAO.getPerson(book.get().getPersonId());
-            if (pers.isPresent()) {
-                System.out.println(String.format("book is attached to %s", pers.get().getFio()));
-                model.addAttribute("personName", pers.get().getFio());
+            if (book.getOwner() != null) {
+                Person pers = peopleService.findOne(book.getOwner().getId());
+
+                System.out.println(String.format("book is attached to %s", pers.getFio()));
+                model.addAttribute("personName", pers.getFio());
+            } else {
+                model.addAttribute("people", peopleService.findAll());
+                model.addAttribute("personName", null);
             }
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
 
         return "books/show";
@@ -62,11 +97,16 @@ public class BooksController {
     @PutMapping("/{id}/detach")
     public String detach(@PathVariable("id") int id){
         System.out.println(String.format("detach book %d", id));
-        Optional<Book> book = booksDAO.getBook(id);
-        if (book.isPresent()) {
-            booksDAO.setReader(id, null);
+        try {
+            Book book = booksService.findOne(id);
+
+            booksService.setReader(id, null);
             System.out.println("detached");
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
+
         return String.format("redirect:/books/%d", id);
     }
 
@@ -74,11 +114,16 @@ public class BooksController {
     public String attach(@PathVariable("id") int id,
                          @ModelAttribute("person") Person person){
         System.out.println(String.format("attach book %d to %d", id, person.getId()));
-        Optional<Person> pers = personDAO.getPerson(person.getId());
-        if (pers.isPresent()) {
-            booksDAO.setReader(id, pers.get().getId());
+        Person pers = peopleService.findOne(person.getId());
+
+        try {
+            booksService.setReader(id, pers);
             System.out.println("attached");
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
+
         return String.format("redirect:/books/%d", id);
     }
 
@@ -102,30 +147,40 @@ public class BooksController {
         if (bindingResult.hasErrors()){
             return "books/new";
         }
-        booksDAO.createBook(book);
+        booksService.save(book);
         return "redirect:/books";
     }
 
     @DeleteMapping("/{id}")
     public String deleteBook(@PathVariable("id") int id,
                              Model model){
-        Optional<Book> book = booksDAO.getBook(id);
-        if (book.isPresent()) {
-            booksDAO.deleteBook(id);
+        try {
+            Book book = booksService.findOne(id);
+
+            booksService.delete(id);
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
+
         return "redirect:/books";
     }
 
     @GetMapping("/{id}/edit")
     public String editBook(@PathVariable("id") int id,
                            Model model){
-        Optional<Book> book = booksDAO.getBook(id);
-        if (book.isPresent()) {
-            model.addAttribute("book", book.get());
-            return "books/edit";
-        } else {
-            return String.format("redirect:/show/%d", id);
+        try {
+            Book book = booksService.findOne(id);
+            if (book != null) {
+                model.addAttribute("book", book);
+            } else {
+                return String.format("redirect:/show/%d", id);
+            }
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
+        return "books/edit";
     }
 
     @PutMapping("/{id}")
@@ -141,12 +196,14 @@ public class BooksController {
         if (bindingResult.hasErrors()){
             return "books/edit";
         }
-        Optional<Book> findedBook = booksDAO.getBook(id);
-        if (findedBook.isPresent()) {
-            booksDAO.updateBook(id, book);
-            return String.format("redirect:/books/%d", id);
-        } else {
-            return "books/edit";
+        try {
+            Book findedBook = booksService.findOne(id);
+
+            booksService.update(id, book);
+        } catch (BookNotFoundException e) {
+            e.printStackTrace();
+            return "books/404";
         }
+        return String.format("redirect:/books/%d", id);
     }
 }

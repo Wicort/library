@@ -6,14 +6,15 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.vovchinnikov.library.dao.PersonDAO;
 import ru.vovchinnikov.library.models.Person;
+import ru.vovchinnikov.library.services.PeopleService;
 
 @Component
 public class PersonValidator implements Validator {
-    private PersonDAO personDAO;
+    private PeopleService peopleService;
 
     @Autowired
-    public PersonValidator(PersonDAO personDAO) {
-        this.personDAO = personDAO;
+    public PersonValidator(PeopleService peopleService) {
+        this.peopleService = peopleService;
     }
 
     @Override
@@ -25,7 +26,7 @@ public class PersonValidator implements Validator {
     public void validate(Object o, Errors errors) {
         Person person = (Person) o;
 
-        if (personDAO.getPerson(person.getFio()).isPresent()){
+        if (peopleService.findOne(person.getFio()) != null){
             errors.rejectValue("fio","","Читатель с таким именем уже заергистрирован");
         }
     }

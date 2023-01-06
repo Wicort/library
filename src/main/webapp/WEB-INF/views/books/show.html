@@ -6,13 +6,13 @@
 </head>
 <body>
   <p th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}">text</p>
-  <div th:if="${book.getPersonId()}" >
+  <div th:if="${book.getOwner()}" >
     <div th:text="${'Книга сейчас у: ' + personName}"></div>
     <form th:method="put" th:action="@{/books/{id}/detach(id=${book.getId()})}">
       <input type="submit" value="Открепить">
     </form>
   </div>
-  <div th:unless="${book.getPersonId()}">
+  <div th:unless="${book.getOwner()}">
     Эта книга свободна. Кому ее назначить?
     <form th:method="put" th:action="@{/books/{id}/attach(id=${book.getId()})}">
       <select th:object="${person}" th:field="*{id}" id="person">

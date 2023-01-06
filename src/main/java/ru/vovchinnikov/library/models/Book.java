@@ -1,35 +1,39 @@
 package ru.vovchinnikov.library.models;
 
-import org.springframework.stereotype.Component;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
-@Component
+@Entity
+@Table(name="book")
 public class Book {
 
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "name")
     @NotEmpty(message = "Необходимо заполнить название книги")
     private String name;
 
+    @Column(name = "author")
     @NotEmpty(message = "Необходимо указать автора книги")
     private String author;
 
+    @Column(name = "year")
     private int year;
 
-    private int personId;
+    @ManyToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    private Person owner;
 
     public Book() {
     }
 
-    public Book(int id, String name, String author, int year, int personId) {
-        this.id = id;
+    public Book(String name, String author, int year) {
         this.name = name;
         this.author = author;
         this.year = year;
-        this.personId = personId;
     }
 
     public int getId() {
@@ -64,11 +68,11 @@ public class Book {
         this.year = year;
     }
 
-    public int getPersonId() {
-        return personId;
+    public Person getOwner() {
+        return owner;
     }
 
-    public void setPersonId(int personId) {
-        this.personId = personId;
+    public void setOwner(Person person) {
+        this.owner = person;
     }
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Component
 public class BooksDAO {
-
+/*
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -69,5 +69,5 @@ public class BooksDAO {
                 new Object[]{personId},
                 new BookMapper());
     }
-
+*/
 }

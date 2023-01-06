@@ -1,24 +1,35 @@
 package ru.vovchinnikov.library.models;
 
+import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.List;
 
+@Entity
+@Table(name="person")
 public class Person {
 
+    @Id
+    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "fio")
     @NotEmpty(message="Не заполнено ФИО читателя")
     @Size(min = 5, message = "Указано слишком короткое ФИО")
     private String fio;
 
+    @Column(name = "birthyear")
     @Min(value = 1900, message = "Дата рождения не может быть меньше 1900 года")
-    @Max(value = 2022, message = "Дата рождения не может быть больше 2022 года")
+    @Max(value = 2023, message = "Дата рождения не может быть больше 2023 года")
     private int birthYear;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books;
 
     public Person() {
     }
 
-    public Person(int id, String fio, int birthYear) {
-        this.id = id;
+    public Person(String fio, int birthYear) {
         this.fio = fio;
         this.birthYear = birthYear;
     }
@@ -45,5 +56,13 @@ public class Person {
 
     public void setBirthYear(int birthYear) {
         this.birthYear = birthYear;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 }
